@@ -27,12 +27,12 @@ with st.sidebar:
     
     if st.button("✅ စာရင်းသိမ်းမည်", use_container_width=True):
         if name and num and amt > 0:
-            new_data = pd.DataFrame([{
-                "Customer": name,
-                "Number": str(num),
-                "Amount": int(amt),
-                "Time": datetime.now().strftime("%I:%M %p")
-            }])
+           new_data = pd.DataFrame([{
+            "Customer": name,
+            "Number": str(num),
+            "Amount": int(amt),
+            "Time": datetime.now().strftime("%I:%M %p")
+        }])
             updated_df = pd.concat([df, new_data], ignore_index=True)
             conn.update(worksheet="Sheet1", data=updated_df)
             st.success(f"{name} အတွက် သိမ်းပြီးပါပြီ!")
@@ -73,6 +73,7 @@ with col2:
 
 
 st.info("💡 ဤစနစ်သည် Cloud ပေါ်တွင် အလုပ်လုပ်သဖြင့် ဖုန်းနှင့် Laptop ဒေတာ အတူတူပင်ဖြစ်ပါသည်။")
+
 
 
 
