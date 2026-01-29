@@ -8,6 +8,7 @@ st.title("📊 2D Professional Agent (Cloud)")
 
 conn = st.connection("gsheets", type=GSheetsConnection)
 
+# ဒေတာဖတ်ရန် (HTTPError မတက်အောင် try-except သုံးထားသည်)
 try:
     df = conn.read(worksheet="Sheet1")
 except Exception:
@@ -28,6 +29,7 @@ if submit_button:
             "Time": datetime.now().strftime("%I:%M %p")
         }])
         updated_df = pd.concat([df, new_data], ignore_index=True)
+        # စာရင်းသွင်းရန်
         conn.update(worksheet="Sheet1", data=updated_df)
         st.success(f"Saved: {name}")
         st.rerun()
