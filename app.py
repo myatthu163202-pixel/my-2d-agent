@@ -1,18 +1,23 @@
 import streamlit as st
-from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
+import requests
 
 st.set_page_config(page_title="2D Professional Agent", page_icon="📊")
-st.title("📊 2D Professional Agent (Cloud)")
+st.title("📊 2D Professional Agent")
 
-conn = st.connection("gsheets", type=GSheetsConnection)
+# Secrets ထဲက Link ကို ယူမယ်
+sheet_url = st.secrets["connections"]["gsheets"]["spreadsheet"]
+# Link ကို CSV format ပြောင်းမယ် (ဒေတာဖတ်ဖို့)
+csv_url = sheet_url.replace('/edit', '/export?format=csv')
 
+# ဒေတာဖတ်ခြင်း
 try:
-    df = conn.read(worksheet="Sheet1")
-except Exception:
+    df = pd.read_csv(csv_url)
+except:
     df = pd.DataFrame(columns=["Customer", "Number", "Amount", "Time"])
 
+# Input Form
 with st.form(key="entry_form"):
     name = st.text_input("Customer Name")
     num = st.number_input("Number", min_value=0, max_value=99, step=1)
@@ -21,16 +26,17 @@ with st.form(key="entry_form"):
 
 if submit_button:
     if name:
-        new_data = pd.DataFrame([{
+        # ဒေတာအသစ်
+        new_data = {
             "Customer": name,
             "Number": str(num),
             "Amount": int(amt),
             "Time": datetime.now().strftime("%I:%M %p")
-        }])
-        updated_df = pd.concat([df, new_data], ignore_index=True)
-        conn.update(worksheet="Sheet1", data=updated_df)
-        st.success(f"Saved: {name}")
-        st.rerun()
+        }
+        
+        st.warning("Public Link ဖြင့် ဒေတာရေးရန် Google Apps Script လိုအပ်ပါသည်။")
+        st.write("ဒေတာအသစ် - ", new_data)
+        st.info("မှတ်ချက် - Public Link သုံးလျှင် CRUD (Write) လုပ်ရန် Service Account JSON Key မဖြစ်မနေ လိုအပ်လာပြီ ဖြစ်ပါသည်။")
     else:
         st.error("Please enter a customer name.")
 
