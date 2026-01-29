@@ -34,7 +34,7 @@ with st.sidebar:
                 "Time": datetime.now().strftime("%I:%M %p")
             }])
             updated_df = pd.concat([df, new_data], ignore_index=True)
-            conn.update(worksheet="Sheet1", data=updated_df)
+            conn.update(data=updated_df)
             st.success(f"{name} အတွက် သိမ်းပြီးပါပြီ!")
             st.rerun()
         else:
@@ -73,3 +73,4 @@ with col2:
 
 
 st.info("💡 ဤစနစ်သည် Cloud ပေါ်တွင် အလုပ်လုပ်သဖြင့် ဖုန်းနှင့် Laptop ဒေတာ အတူတူပင်ဖြစ်ပါသည်။")
+
