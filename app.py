@@ -89,4 +89,8 @@ with col2:
             with st.expander(f"👤 {row['Customer']} | 🔢 {row['Number']} | 💵 {row['Amount']} Ks"):
                 st.write(f"⏰ အချိန်: {row['Time']}")
                 if st.button(f"🗑 ဤစာရင်းကို ဖျက်ရန်", key=f"del_{index}"):
-                    del_data = {"action": "delete", "Customer": row['Customer'], "Number": str(row['Number
+                    del_data = {"action": "delete", "Customer": row['Customer'], "Number": str(row['Number']), "Time": row['Time']}
+                    requests.post(script_url, json=del_data)
+                    st.rerun()
+    else:
+        st.info("လက်ရှိတွင် စာရင်းမရှိသေးပါ။")
