@@ -10,7 +10,10 @@ st.title("📊 2D Professional Agent (Cloud)")
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Read existing data
-df = conn.read(worksheet="Sheet1")
+try:
+    df = conn.read(worksheet="Sheet1")
+except Exception:
+    df = pd.DataFrame(columns=["Customer", "Number", "Amount", "Time"])
 
 # Input Form
 with st.form(key="entry_form"):
@@ -35,9 +38,10 @@ if submit_button:
         
         st.success(f"Saved: {name} - {num} - {amt}")
         st.balloons()
+        st.rerun()
     else:
         st.error("Please enter a customer name.")
 
 # Display Data
 st.subheader("Current Records")
-st.dataframe(updated_df if 'updated_df' in locals() else df)
+st.dataframe(df)
