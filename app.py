@@ -6,7 +6,7 @@ from datetime import datetime
 # Page Setting
 st.set_page_config(page_title="2D Pro Cloud", page_icon="💰", layout="wide")
 
-st.markdown("<h2 style='text-align: center; color: #2E86C1;'>📊 2D Professional Agent (Cloud)</h2>", unsafe_allow_code=True)
+st.markdown("<h2 style='text-align: center; color: #2E86C1;'>📊 2D Professional Agent (Cloud)</h2>", unsafe_allow_html=True)
 
 # Google Sheets Connection
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -70,5 +70,6 @@ with col2:
             st.table(winners[["Customer", "Amount"]])
         else:
             st.warning("ပေါက်သူမရှိပါ။")
+
 
 st.info("💡 ဤစနစ်သည် Cloud ပေါ်တွင် အလုပ်လုပ်သဖြင့် ဖုန်းနှင့် Laptop ဒေတာ အတူတူပင်ဖြစ်ပါသည်။")
