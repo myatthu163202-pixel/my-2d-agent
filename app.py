@@ -6,39 +6,43 @@ import requests
 st.set_page_config(page_title="2D Professional Agent", page_icon="📊")
 st.title("📊 2D Professional Agent")
 
-# Secrets ထဲက Link ကို ယူမယ်
+# Secrets ထဲက Link များ ယူခြင်း
 sheet_url = st.secrets["connections"]["gsheets"]["spreadsheet"]
-# Link ကို CSV format ပြောင်းမယ် (ဒေတာဖတ်ဖို့)
+script_url = st.secrets["connections"]["gsheets"]["script_url"]
 csv_url = sheet_url.replace('/edit', '/export?format=csv')
 
 # ဒေတာဖတ်ခြင်း
 try:
-    df = pd.read_csv(csv_url)
+    # Cache မကျန်အောင် URL နောက်မှာ အချိန်ထည့်ပြီး ဖတ်ပါမည်
+    df = pd.read_csv(f"{csv_url}&cachebuster={datetime.now().timestamp()}")
 except:
     df = pd.DataFrame(columns=["Customer", "Number", "Amount", "Time"])
 
 # Input Form
-with st.form(key="entry_form"):
+with st.form("entry_form", clear_on_submit=True):
     name = st.text_input("Customer Name")
     num = st.number_input("Number", min_value=0, max_value=99, step=1)
     amt = st.number_input("Amount", min_value=100, step=100)
-    submit_button = st.form_submit_button(label="Submit")
+    
+    if st.form_submit_button("Submit"):
+        if name:
+            new_data = {
+                "Customer": name, 
+                "Number": str(num),
+                "Amount": int(amt), 
+                "Time": datetime.now().strftime("%I:%M %p")
+            }
+            # Apps Script ဆီ ဒေတာပို့ခြင်း
+            with st.spinner('သိမ်းဆည်းနေပါသည်...'):
+                response = requests.post(script_url, json=new_data)
+                if response.status_code == 200:
+                    st.success(f"{name} အတွက် စာရင်းသွင်းပြီးပါပြီ!")
+                    st.balloons()
+                    st.rerun()
+                else:
+                    st.error("Error: ဒေတာပေးပို့မှု မအောင်မြင်ပါ။")
+        else:
+            st.error("Customer Name ထည့်ပေးပါ။")
 
-if submit_button:
-    if name:
-        # ဒေတာအသစ်
-        new_data = {
-            "Customer": name,
-            "Number": str(num),
-            "Amount": int(amt),
-            "Time": datetime.now().strftime("%I:%M %p")
-        }
-        
-        st.warning("Public Link ဖြင့် ဒေတာရေးရန် Google Apps Script လိုအပ်ပါသည်။")
-        st.write("ဒေတာအသစ် - ", new_data)
-        st.info("မှတ်ချက် - Public Link သုံးလျှင် CRUD (Write) လုပ်ရန် Service Account JSON Key မဖြစ်မနေ လိုအပ်လာပြီ ဖြစ်ပါသည်။")
-    else:
-        st.error("Please enter a customer name.")
-
-st.subheader("Current Records")
-st.dataframe(df)
+st.subheader("ယနေ့စာရင်းများ")
+st.dataframe(df, use_container_width=True)
