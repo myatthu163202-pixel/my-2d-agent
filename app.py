@@ -65,17 +65,29 @@ with c2:
         view_df = df[df['Customer'].str.contains(search, case=False, na=False)] if search else df
         st.dataframe(view_df, use_container_width=True, hide_index=True)
 
+        # --- ပေါက်သူစာရင်း နှင့် လျော်ကြေးတွက်ချက်ခြင်း ---
         if win_num:
-            winners = df[df['Number'] == win_num]
+            winners = df[df['Number'] == win_num].copy()
             total_out = winners['Amount'].sum() * za_rate
             balance = total_in - total_out
+            
             st.divider()
+            st.subheader("📈 ရလဒ်အကျဉ်းချုပ်")
             k1, k2, k3 = st.columns(3)
             k1.metric("🏆 ပေါက်သူ", f"{len(winners)} ဦး")
-            k2.metric("💸 လျော်ကြေး", f"{total_out:,.0f} Ks")
+            k2.metric("💸 လျော်ကြေးစုစုပေါင်း", f"{total_out:,.0f} Ks")
             k3.metric("💹 အမြတ်/အရှုံး", f"{balance:,.0f} Ks", delta=balance)
+            
+            if not winners.empty:
+                st.write("🎊 **ပေါက်သူများစာရင်း နှင့် လျော်ရမည့်ငွေ -**")
+                # လျော်ကြေးကော်လံအသစ် ထည့်တွက်ပြခြင်း
+                winners['လျော်ရမည့်ငွေ'] = winners['Amount'] * za_rate
+                # ပြချင်တဲ့ column တွေကိုပဲ ရွေးပြမယ်
+                st.table(winners[['Customer', 'Number', 'Amount', 'လျော်ရမည့်ငွေ']])
+    else:
+        st.info("လက်ရှိတွင် စာရင်းမရှိသေးပါ။")
 
-# တစ်ခုချင်းဖျက်ရန် (Row Index ကို တိုက်ရိုက်ပို့သော စနစ်)
+# တစ်ခုချင်းဖျက်ရန်
 if not df.empty:
     st.divider()
     st.subheader("🗑 စာရင်းဖျက်ရန်")
@@ -86,7 +98,6 @@ if not df.empty:
             col_x.write(f"👤 {r['Customer']} | 🔢 {r['Number']} | 💵 {r['Amount']} Ks")
             
             if col_y.button("ဖျက်", key=f"del_{i}"):
-                # Row index ပို့လိုက်သည်
                 requests.post(script_url, json={"action": "delete", "row_index": i + 1})
                 st.toast(f"ဖျက်ပြီးပါပြီ။")
                 time.sleep(1.5)
